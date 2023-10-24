@@ -1,5 +1,7 @@
+import os
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 
 def create_file():
     text_area = tk.Text(notebook)
@@ -7,6 +9,21 @@ def create_file():
     notebook.add(text_area,text='Untitled')
     notebook.select(text_area)
     text_area.focus()
+
+def save_file():
+    file_path = filedialog.asksaveasfilename()
+    try:
+        filename = os.path.basename(file_path)
+        text_widget =root.nametowidget(notebook.select())
+        content =text_widget.get('1.0','end-1c')
+
+        with open(file_path, 'w') as file:
+            file.write(content)
+    except (AttributeError, FileNotFoundError):
+        print('Save operation cancelled')
+        return
+    
+    notebook.tab('current', text=filename)
 
 root = tk.Tk()
 root.title('Custom Text Editor')
@@ -20,6 +37,7 @@ root.config(menu=menu_bar)
 file_menu = tk.Menu(menu_bar)
 menu_bar.add_cascade(menu=file_menu, label ='File')
 file_menu.add_command(label = 'new', command = create_file)
+file_menu.add_command(label='Save', command=save_file)
 
 notebook = ttk.Notebook(main)
 notebook.pack(fill='both',expand=True)
