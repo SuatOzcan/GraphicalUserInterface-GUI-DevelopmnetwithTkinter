@@ -4,6 +4,7 @@ from tkinter import ttk
 from tkinter import filedialog
 
 def create_file(content='', title='Untitled'):
+    global text_area
     text_area = tk.Text(notebook)
     text_area.insert('end', content)
     text_area.pack(fill="both", expand =True)
@@ -51,12 +52,16 @@ root.config(menu=menu_bar)
 
 file_menu = tk.Menu(menu_bar)
 menu_bar.add_cascade(menu=file_menu, label ='File')
-file_menu.add_command(label = 'New', command = create_file)
-file_menu.add_command(label='Save', command=save_file)
-file_menu.add_command(label='Open File', command=open_file)
+file_menu.add_command(label = 'New', command = create_file, accelerator='Ctrl+n')
+file_menu.add_command(label='Save', command=save_file, accelerator='Ctrl+s')
+file_menu.add_command(label='Open File', command=open_file, accelerator='Ctrl+o')
 notebook = ttk.Notebook(main)
 notebook.pack(fill='both',expand=True)
 
 create_file()
+
+root.bind('<Control-n>', lambda event: create_file())
+root.bind('<Control-o>', lambda event: open_file())
+root.bind('<Control-s>', lambda event: save_file())
 
 root.mainloop()
