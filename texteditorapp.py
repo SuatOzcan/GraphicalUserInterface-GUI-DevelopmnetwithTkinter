@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 
+text_contents = dict()
+
 def create_file(content='', title='Untitled'):
     global text_area
     text_area = tk.Text(notebook)
@@ -12,11 +14,28 @@ def create_file(content='', title='Untitled'):
     notebook.select(text_area)
     text_area.focus()
 
+    text_contents[str(text_area)] = hash(content)
+
+def check_for_changes():
+    current = get_text_widget()
+    content = current.get("1.0","end-1c")
+    name = notebook.tab("current")["text"]
+
+    if hash(content) != text_contents[str(current)]:
+        if name[-1] != "*":
+            notebook.tab("current", text = name + "*")
+    elif name[-1] == "*":
+        notebook.tab("current", text = name[:-1])
+
+def get_text_widget():
+    text_widget = root.nametowidget(notebook.select())
+    return text_widget
+
 def save_file():
     file_path = filedialog.asksaveasfilename()
     try:
         filename = os.path.basename(file_path)
-        text_widget =root.nametowidget(notebook.select())
+        text_widget = get_text_widget()
         content =text_widget.get('1.0','end-1c')
 
         with open(file_path, 'w') as file:
@@ -26,6 +45,7 @@ def save_file():
         return
     
     notebook.tab('current', text=filename)
+    text_contents[str(text_widget)] = hash(content)
 
 def open_file():
     file_path =filedialog.askopenfilename()
@@ -60,6 +80,7 @@ notebook.pack(fill='both',expand=True)
 
 create_file()
 
+root.bind("<KeyPress>", lambda event : check_for_changes())
 root.bind('<Control-n>', lambda event: create_file())
 root.bind('<Control-o>', lambda event: open_file())
 root.bind('<Control-s>', lambda event: save_file())
